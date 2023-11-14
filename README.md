@@ -1,6 +1,6 @@
-# Fluent Request Builder
+# Fluent Request
 
-Fluent Request Builder is a powerful and flexible Java library for constructing HTTP requests in a fluent and expressive manner. It simplifies the process of creating and sending HTTP requests by providing a chainable API for building requests with ease.
+Fluent Request is a powerful and flexible Java library for constructing HTTP requests in a fluent and expressive manner. It simplifies the process of creating and sending HTTP requests by providing a chainable API for building requests with ease.
 
 ## Features
 
@@ -12,7 +12,7 @@ Fluent Request Builder is a powerful and flexible Java library for constructing 
 - [Jackson](https://github.com/FasterXML/jackson) library as JSON parser to return expected response
 
 ## Installation
-Fluent Request Builder can be easily installed using JitPack, see Gradle and Maven examples below.
+Fluent Request can be easily installed using JitPack, see Gradle and Maven examples below.
 
 ### Gradle
 Add the following to your build.gradle file:
@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.thewaterfall:fluent-request-builder:1.0.0'
+    implementation 'com.github.thewaterfall:fluent-request:1.0.0'
 }
 ```
 
