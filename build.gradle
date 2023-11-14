@@ -1,0 +1,53 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'com.thewaterfall.fluent-request'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    withSourcesJar()
+}
+
+compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.thewaterfall'
+            artifactId = 'fluent-request'
+            version = '1.0.0'
+            from components.java
+
+            pom {
+                name = 'Fluent Request'
+                description = 'Fluent Request is a Java library designed to simplify and streamline ' +
+                        'the process of making HTTP requests. It follows a fluent builder pattern, allowing users to ' +
+                        'construct complex HTTP requests in a readable and expressive manner.'
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'http://www.opensource.org/licenses/mit-license.php'
+                    }
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+}
