@@ -2,17 +2,11 @@ package com.thewaterfall.request;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thewaterfall.request.misc.FluentHttpMethod;
-import com.thewaterfall.request.misc.FluentIOException;
-import com.thewaterfall.request.misc.FluentMappingException;
-import com.thewaterfall.request.misc.FluentResponse;
+import com.thewaterfall.request.misc.*;
 import okhttp3.*;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -118,7 +112,7 @@ public class FluentRequest {
     private final String url;
     private final Class<T> responseType;
 
-    private final Map<String, String> headers;
+    private final List<FluentPair<String, String>> headers;
     private final Map<String, Object> urlVariables;
     private final Map<String, Object> queryParameters;
     private RequestBody body;
@@ -129,7 +123,7 @@ public class FluentRequest {
 
       this.urlVariables = new HashMap<>();
       this.queryParameters = new HashMap<>();
-      this.headers = new HashMap<>();
+      this.headers = new ArrayList<>();
     }
 
     /**
@@ -147,7 +141,7 @@ public class FluentRequest {
 
       this.urlVariables = new HashMap<>();
       this.queryParameters = new HashMap<>();
-      this.headers = new HashMap<>();
+      this.headers = new ArrayList<>();
     }
 
     /**
@@ -249,7 +243,20 @@ public class FluentRequest {
      * @return The Builder instance for method chaining.
      */
     public Builder<T> header(String name, String value) {
-      headers.put(name, value);
+      this.headers.add(FluentPair.of(name, value));
+      return this;
+    }
+
+    public Builder<T> headers(Map<String, String> headers) {
+      for (String name : headers.keySet()) {
+        this.headers.add(FluentPair.of(name, headers.get(name)));
+      }
+
+      return this;
+    }
+
+    public Builder<T> headers(List<FluentPair<String, String>> headers) {
+      this.headers.addAll(headers);
       return this;
     }
 
@@ -260,7 +267,7 @@ public class FluentRequest {
      * @return The Builder instance for method chaining.
      */
     public Builder<T> bearer(String token) {
-      this.headers.put("Authorization", "Bearer " + token);
+      this.headers.add(FluentPair.of("Authorization", "Bearer " + token));
       return this;
     }
 
@@ -272,7 +279,7 @@ public class FluentRequest {
      * @return The Builder instance for method chaining.
      */
     public Builder<T> basic(String name, String password) {
-      this.headers.put("Authorization", Credentials.basic(name, password));
+      this.headers.add(FluentPair.of("Authorization", Credentials.basic(name, password)));
       return this;
     }
 
@@ -473,7 +480,7 @@ public class FluentRequest {
     private Request buildRequest(FluentHttpMethod method) {
       return new Request.Builder()
           .url(buildUrl(url, urlVariables, queryParameters))
-          .headers(Headers.of(headers))
+          .headers(buildHeaders())
           .method(method.name(), buildBody())
           .build();
     }
@@ -561,6 +568,26 @@ public class FluentRequest {
           .variables(urlVariables)
           .parameters(queryParameters)
           .build();
+    }
+
+    /**
+     * Builds the headers for the request.
+     *
+     * @return the built Headers object
+     */
+    private Headers buildHeaders() {
+      if (this.headers.isEmpty()) {
+        return Headers.of(Collections.emptyMap());
+      }
+
+      List<String> headerNameAndValues = new ArrayList<>();
+
+      this.headers.forEach(header -> {
+        headerNameAndValues.add(header.getKey());
+        headerNameAndValues.add(header.getValue());
+      });
+
+      return Headers.of(headerNameAndValues.toArray(new String[0]));
     }
   }
 }
