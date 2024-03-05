@@ -11,5 +11,19 @@ public enum FluentHttpMethod {
   PATCH,
   DELETE,
   OPTIONS,
-  TRACE
+  TRACE;
+
+  public static FluentHttpMethod of(String method) {
+    if (method == null) {
+      throw new NullPointerException("Method is null");
+    }
+
+    for (FluentHttpMethod b : FluentHttpMethod.values()) {
+      if (method.equalsIgnoreCase(b.toString())) {
+        return b;
+      }
+    }
+
+    throw new IllegalArgumentException("Invalid method: " + method);
+  }
 }
