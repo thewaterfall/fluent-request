@@ -304,6 +304,26 @@ public class FluentRequest {
     }
 
     /**
+     * Send the HTTP request synchronously with a specified method.
+     *
+     * @param method The HTTP method to be used for the request.
+     * @return The FluentResponse containing the response body and HTTP response details.
+     */
+    public FluentResponse<T> execute(FluentHttpMethod method) {
+      return doSend(method);
+    }
+
+    /**
+     * Send the HTTP request asynchronously with a specified method and a callback.
+     *
+     * @param method The FluentHttpMethod to execute.
+     * @param callback The Callback to be called after the execution.
+     */
+    public void execute(FluentHttpMethod method, Callback callback) {
+      doSend(method, callback);
+    }
+
+    /**
      * Sends a GET request synchronously and returns the response.
      *
      * @return The FluentResponse containing the response body and HTTP response details.
