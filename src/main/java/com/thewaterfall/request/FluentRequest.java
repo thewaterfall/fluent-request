@@ -71,14 +71,15 @@ public class FluentRequest {
   }
 
   /**
-   * Initiates a new HTTP request builder with the specified URL and default response type (Object).
+   * Initiates a new HTTP request builder with the specified URL and no response type (no body deserialization will
+   * happen)
    *
    * @param url    The URL for the HTTP request.
    * @param client The OkHttpClient to use for this specific request.
    * @return A Builder instance for configuring the request.
    */
-  public static Builder<Object> request(String url, OkHttpClient client) {
-    return new Builder<>(url, Object.class, client);
+  public static Builder<?> request(String url, OkHttpClient client) {
+    return new Builder<>(url, null, client);
   }
 
   /**
@@ -95,14 +96,14 @@ public class FluentRequest {
   }
 
   /**
-   * Initiates a new HTTP request builder with the specified URL and default response type (Object),
-   * using the default OkHttpClient.
+   * Initiates a new HTTP request builder with the specified URL and no response type (no body deserialization will
+   * happen)
    *
    * @param url The URL for the HTTP request.
    * @return A Builder instance for configuring the request.
    */
-  public static Builder<Object> request(String url) {
-    return new Builder<>(url, Object.class, client);
+  public static Builder<?> request(String url) {
+    return new Builder<>(url, null, client);
   }
 
   /**
@@ -457,7 +458,7 @@ public class FluentRequest {
       Request request = buildRequest(method);
 
       try (Response response = client.newCall(request).execute()) {
-        return new FluentResponse<>(extractBody(response), response);
+        return new FluentResponse<>(deserializeBody(response), response);
       } catch (IOException e) {
         throw new FluentIOException(e);
       }
@@ -478,17 +479,36 @@ public class FluentRequest {
     }
 
     /**
-     * Extracts the response body from the OkHttp Response.
+     * Extracts and deserializes the response body from the OkHttp Response.
      *
      * @param response The OkHttp Response object.
      * @return The response body deserialized into the expected response type.
      * @throws IOException If an I/O error occurs while reading the response body.
      */
-    private T extractBody(Response response) throws IOException {
-      if (Objects.isNull(response.body())) {
+    private T deserializeBody(Response response) throws IOException {
+      if (Objects.isNull(responseType) || Objects.isNull(response.body())) {
         return null;
       }
 
+      if (responseType.equals(String.class)) {
+        return (T) response.body().string();
+      }
+
+      if (responseType.equals(byte[].class)) {
+        return (T) response.body().bytes();
+      }
+
+      return deserializeAsJson(response);
+    }
+
+    /**
+     * Retrieves the JSON body from the provided response object. 
+     *
+     * @param response the response object from which to retrieve the JSON body
+     * @return the deserialized JSON body as an object of type T
+     * @throws IOException if an I/O error occurs during the retrieval or deserialization of the JSON body
+     */
+    private T deserializeAsJson(Response response) throws IOException {
       byte[] body = response.body().bytes();
 
       if (body.length == 0) {
