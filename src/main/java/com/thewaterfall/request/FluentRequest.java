@@ -218,7 +218,7 @@ public class FluentRequest {
      */
     public Builder<T> parameter(String name, Object value) {
       if (Objects.nonNull(value)) {
-        this.queryParameters.put(name, Collections.singletonList(String.valueOf(value)));
+        this.queryParameters.put(name, String.valueOf(value));
       }
 
       return this;
