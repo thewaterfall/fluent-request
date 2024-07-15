@@ -42,7 +42,7 @@ public class FluentUrl {
    * @return A FluentUrl instance for constructing URLs with variables and query parameters.
    */
   public static FluentUrl fromString(String url) {
-    return new FluentUrl(url, extractQueryParams(url));
+    return new FluentUrl(extractUrl(url), extractQueryParams(url));
   }
 
   /**
@@ -151,6 +151,20 @@ public class FluentUrl {
       formattedUrl = formattedUrl.replace(variable, String.valueOf(value));
     }
     return formattedUrl;
+  }
+
+  /**
+   * Extracts the URL from the given input URL string by removing any query parameters.
+   *
+   * @param url The input URL string.
+   * @return The extracted URL without query parameters.
+   */
+  private static String extractUrl(String url) {
+    // Find the index of the first '?' to remove query parameters
+    int queryIndex =
+        url.indexOf('?');
+
+    return (queryIndex == -1) ? url : url.substring(0, queryIndex);
   }
 
   /**
