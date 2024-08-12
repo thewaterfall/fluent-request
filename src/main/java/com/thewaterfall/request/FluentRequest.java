@@ -1,6 +1,7 @@
 package com.thewaterfall.request;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thewaterfall.request.misc.*;
 import okhttp3.*;
@@ -34,6 +35,81 @@ public class FluentRequest {
   private static ObjectMapper mapper = new ObjectMapper();
 
   /**
+   * Initiates a new HTTP request builder with the specified URL and no response type (no body deserialization will
+   * happen)
+   *
+   * @param url The URL for the HTTP request.
+   * @return A Builder instance for configuring the request.
+   */
+  public static Builder<?> request(String url) {
+    return new Builder<>(url, client);
+  }
+
+  /**
+   * Initiates a new HTTP request builder with the specified URL and no response type (no body deserialization will
+   * happen)
+   *
+   * @param url    The URL for the HTTP request.
+   * @param client The OkHttpClient to use for this specific request.
+   * @return A Builder instance for configuring the request.
+   */
+  public static Builder<?> request(String url, OkHttpClient client) {
+    return new Builder<>(url, client);
+  }
+
+  /**
+   * Initiates a new HTTP request builder with the specified URL and response type,
+   * using the default OkHttpClient.
+   *
+   * @param url          The URL for the HTTP request.
+   * @param responseType The class type of the expected response.
+   * @param <T>          The type of the expected response.
+   * @return A Builder instance for configuring the request.
+   */
+  public static <T> Builder<T> request(String url, Class<T> responseType) {
+    return new Builder<>(url, responseType, client);
+  }
+
+  /**
+   * Initiates a new HTTP request builder with the specified URL and response type reference,
+   * using the default OkHttpClient.
+   *
+   * @param url          The URL for the HTTP request.
+   * @param responseType The type reference of the expected response.
+   * @param <T>          The type of the expected response.
+   * @return A Builder instance for configuring the request.
+   */
+  public static <T> Builder<T> request(String url, TypeReference<T> responseType) {
+    return new Builder<>(url, responseType, client);
+  }
+
+  /**
+   * Initiates a new HTTP request builder with the specified URL and response type.
+   *
+   * @param url          The URL for the HTTP request.
+   * @param responseType The class type of the expected response.
+   * @param client       The OkHttpClient to use for this specific request.
+   * @param <T>          The type of the expected response.
+   * @return A Builder instance for configuring the request.
+   */
+  public static <T> Builder<T> request(String url, Class<T> responseType, OkHttpClient client) {
+    return new Builder<>(url, responseType, client);
+  }
+
+  /**
+   * Initiates a new HTTP request builder with the specified URL and response type reference.
+   *
+   * @param url          The URL for the HTTP request.
+   * @param responseType The type reference of the expected response.
+   * @param client       The OkHttpClient to use for this specific request.
+   * @param <T>          The type of the expected response.
+   * @return A Builder instance for configuring the request.
+   */
+  public static <T> Builder<T> request(String url, TypeReference<T> responseType, OkHttpClient client) {
+    return new Builder<>(url, responseType, client);
+  }
+
+  /**
    * Overrides the default OkHttpClient used for making HTTP requests.
    *
    * @param newClient The OkHttpClient to use for HTTP requests.
@@ -52,55 +128,6 @@ public class FluentRequest {
   }
 
   /**
-   * Initiates a new HTTP request builder with the specified URL and response type.
-   *
-   * @param url          The URL for the HTTP request.
-   * @param responseType The class type of the expected response.
-   * @param client       The OkHttpClient to use for this specific request.
-   * @param <T>          The type of the expected response.
-   * @return A Builder instance for configuring the request.
-   */
-  public static <T> Builder<T> request(String url, Class<T> responseType, OkHttpClient client) {
-    return new Builder<>(url, responseType, client);
-  }
-
-  /**
-   * Initiates a new HTTP request builder with the specified URL and no response type (no body deserialization will
-   * happen)
-   *
-   * @param url    The URL for the HTTP request.
-   * @param client The OkHttpClient to use for this specific request.
-   * @return A Builder instance for configuring the request.
-   */
-  public static Builder<?> request(String url, OkHttpClient client) {
-    return new Builder<>(url, null, client);
-  }
-
-  /**
-   * Initiates a new HTTP request builder with the specified URL and response type,
-   * using the default OkHttpClient.
-   *
-   * @param url          The URL for the HTTP request.
-   * @param responseType The class type of the expected response.
-   * @param <T>          The type of the expected response.
-   * @return A Builder instance for configuring the request.
-   */
-  public static <T> Builder<T> request(String url, Class<T> responseType) {
-    return new Builder<>(url, responseType, client);
-  }
-
-  /**
-   * Initiates a new HTTP request builder with the specified URL and no response type (no body deserialization will
-   * happen)
-   *
-   * @param url The URL for the HTTP request.
-   * @return A Builder instance for configuring the request.
-   */
-  public static Builder<?> request(String url) {
-    return new Builder<>(url, null, client);
-  }
-
-  /**
    * The Builder class is an inner class of FluentRequest and represents the actual builder
    * for constructing FluentRequest instances with specific configurations.
    *
@@ -111,15 +138,25 @@ public class FluentRequest {
 
     private final String url;
     private final Class<T> responseType;
+    private final TypeReference<T> responseReference;
 
     private final List<FluentPair<String, String>> headers;
     private final Map<String, Object> urlVariables;
     private final Map<String, Object> queryParameters;
     private RequestBody body;
 
-    public Builder(String url, Class<T> responseType) {
+    /**
+     * Constructs a new instance of Builder without a response type (without body deserialization).
+     *
+     * @param url     The URL for the HTTP request.
+     * @param client  The OkHttpClient to use for this specific request.
+     */
+    public Builder(String url, OkHttpClient client) {
+      this.client = client;
       this.url = url;
-      this.responseType = responseType;
+
+      this.responseType = null;
+      this.responseReference = null;
 
       this.urlVariables = new HashMap<>();
       this.queryParameters = new HashMap<>();
@@ -130,14 +167,34 @@ public class FluentRequest {
      * Constructs a new Builder instance with the specified URL, response type, and OkHttpClient.
      *
      * @param url          The URL for the HTTP request.
-     * @param responseType The class type of the expected response.
+     * @param responseType The type reference of the expected response.
      * @param client       The OkHttpClient to use for this specific request.
      */
     public Builder(String url, Class<T> responseType, OkHttpClient client) {
       this.client = client;
-
       this.url = url;
+
       this.responseType = responseType;
+      this.responseReference = null;
+
+      this.urlVariables = new HashMap<>();
+      this.queryParameters = new HashMap<>();
+      this.headers = new ArrayList<>();
+    }
+
+    /**
+     * Constructs a new Builder instance with the specified URL, response type reference, and OkHttpClient.
+     *
+     * @param url          The URL for the HTTP request.
+     * @param responseRef  The class type of the expected response.
+     * @param client       The OkHttpClient to use for this specific request.
+     */
+    public Builder(String url, TypeReference<T> responseRef, OkHttpClient client) {
+      this.client = client;
+      this.url = url;
+
+      this.responseType = null;
+      this.responseReference = responseRef;
 
       this.urlVariables = new HashMap<>();
       this.queryParameters = new HashMap<>();
@@ -485,7 +542,7 @@ public class FluentRequest {
       Request request = buildRequest(method);
 
       try (Response response = client.newCall(request).execute()) {
-        return new FluentResponse<>(deserializeBody(response), response);
+        return new FluentResponse<>(deserializeAsJson(response), response);
       } catch (IOException e) {
         throw new FluentIOException(e);
       }
@@ -506,29 +563,6 @@ public class FluentRequest {
     }
 
     /**
-     * Extracts and deserializes the response body from the OkHttp Response.
-     *
-     * @param response The OkHttp Response object.
-     * @return The response body deserialized into the expected response type.
-     * @throws IOException If an I/O error occurs while reading the response body.
-     */
-    private T deserializeBody(Response response) throws IOException {
-      if (Objects.isNull(responseType) || Objects.isNull(response.body())) {
-        return null;
-      }
-
-      if (responseType.equals(String.class)) {
-        return (T) response.body().string();
-      }
-
-      if (responseType.equals(byte[].class)) {
-        return (T) response.body().bytes();
-      }
-
-      return deserializeAsJson(response);
-    }
-
-    /**
      * Retrieves the JSON body from the provided response object. 
      *
      * @param response the response object from which to retrieve the JSON body
@@ -536,13 +570,26 @@ public class FluentRequest {
      * @throws IOException if an I/O error occurs during the retrieval or deserialization of the JSON body
      */
     private T deserializeAsJson(Response response) throws IOException {
-      byte[] body = response.body().bytes();
+      if (Objects.isNull(responseType) && Objects.isNull(responseReference)) {
+        return null;
+      }
+
+      if (Objects.isNull(response.body())) {
+        return null;
+      }
+
+      byte[] body = response.body()
+          .bytes();
 
       if (body.length == 0) {
         return null;
       }
 
-      return mapper.readValue(body, this.responseType);
+      if (Objects.nonNull(responseType)) {
+        return mapper.readValue(body, this.responseType);
+      } else {
+        return mapper.readValue(body, this.responseReference);
+      }
     }
 
     /**
