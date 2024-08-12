@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.thewaterfall:fluent-request:1.2.1'
+    implementation 'com.github.thewaterfall:fluent-request:1.3.0'
 }
 ```
 
@@ -43,7 +43,7 @@ Add the following to your pom.xml file:
     <dependency>
         <groupId>com.github.thewaterfall</groupId>
         <artifactId>fluent-request</artifactId>
-        <version>1.2.1</version>
+        <version>1.3.0</version>
     </dependency>
 </dependencies>
 ```
