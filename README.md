@@ -107,3 +107,10 @@ FluentRequest.request("https://example.com/articles/{articleId}/comments", Comme
     .parameter("sort", "asc")
     .get();
 ```
+
+### Example 6: Using generic type as a response body type
+
+```
+FluentRequest.request("https://example.com/articles", new TypeReference<List<Article>>() {})
+    .get();
+```
