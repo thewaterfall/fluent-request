@@ -41,8 +41,8 @@ public class FluentRequest {
    * @param url The URL for the HTTP request.
    * @return A Builder instance for configuring the request.
    */
-  public static Builder<?> request(String url) {
-    return new Builder<>(url, client);
+  public static Builder<byte[]> request(String url) {
+    return new Builder<>(url, byte[].class, client);
   }
 
   /**
@@ -53,8 +53,8 @@ public class FluentRequest {
    * @param client The OkHttpClient to use for this specific request.
    * @return A Builder instance for configuring the request.
    */
-  public static Builder<?> request(String url, OkHttpClient client) {
-    return new Builder<>(url, client);
+  public static Builder<byte[]> request(String url, OkHttpClient client) {
+    return new Builder<>(url, byte[].class, client);
   }
 
   /**
@@ -144,24 +144,6 @@ public class FluentRequest {
     private final Map<String, Object> urlVariables;
     private final Map<String, Object> queryParameters;
     private RequestBody body;
-
-    /**
-     * Constructs a new instance of Builder without a response type (without body deserialization).
-     *
-     * @param url     The URL for the HTTP request.
-     * @param client  The OkHttpClient to use for this specific request.
-     */
-    public Builder(String url, OkHttpClient client) {
-      this.client = client;
-      this.url = url;
-
-      this.responseType = null;
-      this.responseReference = null;
-
-      this.urlVariables = new HashMap<>();
-      this.queryParameters = new HashMap<>();
-      this.headers = new ArrayList<>();
-    }
 
     /**
      * Constructs a new Builder instance with the specified URL, response type, and OkHttpClient.
@@ -570,25 +552,22 @@ public class FluentRequest {
      * @throws IOException if an I/O error occurs during the retrieval or deserialization of the JSON body
      */
     private T deserializeAsJson(Response response) throws IOException {
-      if (Objects.isNull(responseType) && Objects.isNull(responseReference)) {
-        return null;
-      }
-
       if (Objects.isNull(response.body())) {
         return null;
       }
 
-      byte[] body = response.body()
-          .bytes();
+      if (byte[].class.equals(responseType)) {
+        return (T) response.body().bytes();
+      }
 
-      if (body.length == 0) {
-        return null;
+      if (String.class.equals(responseType)) {
+        return (T) response.body().string();
       }
 
       if (Objects.nonNull(responseType)) {
-        return mapper.readValue(body, this.responseType);
+        return mapper.readValue(response.body().bytes(), this.responseType);
       } else {
-        return mapper.readValue(body, this.responseReference);
+        return mapper.readValue(response.body().bytes(), this.responseReference);
       }
     }
 
