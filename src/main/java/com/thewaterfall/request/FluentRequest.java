@@ -35,8 +35,14 @@ public class FluentRequest {
   private static ObjectMapper mapper = new ObjectMapper();
 
   /**
-   * Initiates a new HTTP request builder with the specified URL and no response type (no body deserialization will
-   * happen)
+   * <p>Initiates a new HTTP request builder with the specified URL and no response type (no body deserialization will
+   * happen).</p>
+   *
+   * <p>Example:</p>
+   * <pre>{@code
+   * FluentRequest.request("https://example.com/articles/1")
+   *     .get();
+   * }</pre>
    *
    * @param url The URL for the HTTP request.
    * @return A Builder instance for configuring the request.
@@ -46,8 +52,14 @@ public class FluentRequest {
   }
 
   /**
-   * Initiates a new HTTP request builder with the specified URL and no response type (no body deserialization will
-   * happen)
+   * <p>Initiates a new HTTP request builder with the specified URL and no response type (no body deserialization will
+   * happen).</p>
+   *
+   * <p>Example:</p>
+   * <pre>{@code
+   * FluentRequest.request("https://example.com/articles/1", client)
+   *     .get();
+   * }</pre>
    *
    * @param url    The URL for the HTTP request.
    * @param client The OkHttpClient to use for this specific request.
@@ -58,8 +70,14 @@ public class FluentRequest {
   }
 
   /**
-   * Initiates a new HTTP request builder with the specified URL and response type,
-   * using the default OkHttpClient.
+   * <p>Initiates a new HTTP request builder with the specified URL and response type,
+   * using the default OkHttpClient.</p>
+   *
+   * <p>Example:</p>
+   * <pre>{@code
+   * FluentRequest.request("https://example.com/articles/1", Article.class)
+   *     .get();
+   * }</pre>
    *
    * @param url          The URL for the HTTP request.
    * @param responseType The class type of the expected response.
@@ -71,8 +89,14 @@ public class FluentRequest {
   }
 
   /**
-   * Initiates a new HTTP request builder with the specified URL and response type reference,
-   * using the default OkHttpClient.
+   * <p>Initiates a new HTTP request builder with the specified URL and response type reference,
+   * using the default OkHttpClient. Allows to use a generic type as a response body type.</p>
+   *
+   * <p>Example:</p>
+   * <pre>{@code
+   * FluentRequest.request("https://example.com/articles", new TypeReference<List<Article>>() {})
+   *     .get();
+   * }</pre>>
    *
    * @param url          The URL for the HTTP request.
    * @param responseType The type reference of the expected response.
@@ -84,7 +108,13 @@ public class FluentRequest {
   }
 
   /**
-   * Initiates a new HTTP request builder with the specified URL and response type.
+   * <p>Initiates a new HTTP request builder with the specified URL and response type.</p>
+   *
+   * <p>Example: </p>
+   * <pre>{@code
+   * FluentRequest.request("https://example.com/articles/1", Article.class, client)
+   *     .get();
+   * }</pre>
    *
    * @param url          The URL for the HTTP request.
    * @param responseType The class type of the expected response.
@@ -97,7 +127,14 @@ public class FluentRequest {
   }
 
   /**
-   * Initiates a new HTTP request builder with the specified URL and response type reference.
+   * <p>Initiates a new HTTP request builder with the specified URL and response type reference.
+   * Allows to use a generic type as a response body type.</p>
+   *
+   * <p>Example:</p>
+   * <pre>{@code
+   * FluentRequest.request("https://example.com/articles", new TypeReference<List<Article>>() {}, client)
+   *     .get();
+   * }</pre>>
    *
    * @param url          The URL for the HTTP request.
    * @param responseType The type reference of the expected response.
