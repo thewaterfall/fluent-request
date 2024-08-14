@@ -151,7 +151,7 @@ public class FluentRequest {
    *
    * @param newClient The OkHttpClient to use for HTTP requests.
    */
-  private static void overrideClient(OkHttpClient newClient) {
+  public static void overrideClient(OkHttpClient newClient) {
     client = newClient;
   }
 
@@ -160,7 +160,7 @@ public class FluentRequest {
    *
    * @param newMapper The ObjectMapper to use for JSON processing.
    */
-  private static void overrideMapper(ObjectMapper newMapper) {
+  public static void overrideMapper(ObjectMapper newMapper) {
     mapper = newMapper;
   }
 
